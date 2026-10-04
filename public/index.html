@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MATREX | منصة الأحياء للثانوية العامة</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        :root {
+            --primary: #10b981;
+            --primary-dark: #059669;
+            --bg-main: #090d16;
+            --bg-card: #111827;
+            --bg-nav: #0f172a;
+            --border-color: #1e293b;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --accent-yellow: #f59e0b;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Cairo', sans-serif; }
+        body { background-color: var(--bg-main); color: var(--text-main); min-height: 100vh; }
+
+        header {
+            background: var(--bg-nav); border-bottom: 1px solid var(--border-color);
+            padding: 1rem 2rem; display: flex; justify-content: space-between; align-items: center;
+            position: sticky; top: 0; z-index: 100;
+        }
+        .logo { font-size: 1.8rem; font-weight: 900; color: var(--primary); display: flex; align-items: center; gap: 10px; }
+        .logo span { color: #fff; font-size: 1.1rem; font-weight: 600; }
+        
+        .user-panel { display: flex; align-items: center; gap: 1.2rem; }
+        .badge-role { background: rgba(16, 185, 129, 0.2); color: var(--primary); border: 1px solid var(--primary); padding: 4px 12px; border-radius: 20px; font-size: 0.8rem; font-weight: bold; }
+        .btn-logout { background: rgba(239, 68, 68, 0.2); color: #ef4444; border: 1px solid #ef4444; padding: 6px 14px; border-radius: 8px; cursor: pointer; font-weight: bold; }
+
+        .auth-container { max-width: 460px; margin: 3rem auto; width: 90%; }
+        .card { background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 20px; padding: 2rem; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.5); }
+        .auth-tabs { display: flex; gap: 1rem; margin-bottom: 1.5rem; }
+        .tab-btn { flex: 1; background: var(--bg-main); color: var(--text-muted); border: 1px solid var(--border-color); padding: 12px; border-radius: 10px; cursor: pointer; font-weight: bold; }
+        .tab-btn.active { background: var(--primary); color: #000; border-color: var(--primary); }
+
+        .form-group { margin-bottom: 1.2rem; }
+        label { display: block; margin-bottom: 0.5rem; color: var(--text-muted); font-size: 0.9rem; }
+        input, select {
+            width: 100%; padding: 12px 16px; background: var(--bg-main); border: 1px solid var(--border-color);
+            border-radius: 10px; color: #fff; outline: none; font-size: 1rem;
+        }
+        input:focus, select:focus { border-color: var(--primary); }
+        .btn-submit { width: 100%; padding: 12px; background: var(--primary); color: #000; border: none; border-radius: 10px; font-weight: 800; cursor: pointer; font-size: 1rem; }
+
+        .hero-banner {
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.2) 0%, rgba(15, 23, 42, 0.9) 100%);
+            border: 1px solid var(--primary); border-radius: 24px; padding: 2rem; margin-bottom: 2rem;
+            display: flex; justify-content: space-between; align-items: center;
+        }
+        .hero-title { font-size: 1.8rem; font-weight: 900; color: #fff; }
+
+        /* Course / Chapter Cards Grid */
+        .chapters-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1.5rem; margin-bottom: 3rem; }
+        .chapter-card {
+            background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 18px;
+            overflow: hidden; display: flex; flex-direction: column; transition: 0.3s;
+        }
+        .chapter-card:hover { border-color: var(--primary); transform: translateY(-3px); }
+        .card-banner { height: 130px; background: #1e293b; position: relative; display: flex; align-items: center; justify-content: center; }
+        .card-banner i { font-size: 3.5rem; color: var(--primary); opacity: 0.6; }
+        .card-badge { position: absolute; top: 12px; right: 12px; background: rgba(0,0,0,0.7); color: var(--accent-yellow); padding: 4px 12px; border-radius: 20px; font-size: 0.8rem; font-weight: bold; }
+
+        .card-body { padding: 1.5rem; flex: 1; display: flex; flex-direction: column; justify-content: space-between; }
+        .chapter-title { font-size: 1.15rem; font-weight: 800; color: #fff; margin-bottom: 0.5rem; }
+        
+        .btn-enter-chapter {
+            width: 100%; padding: 10px; background: rgba(16, 185, 129, 0.1); color: var(--primary);
+            border: 1px solid var(--primary); border-radius: 10px; font-weight: bold; cursor: pointer; text-align: center; margin-top: 10px;
+        }
+        .btn-enter-chapter:hover { background: var(--primary); color: #000; }
+
+        /* Files Section */
+        .files-section { background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 18px; padding: 1.5rem; margin-bottom: 2rem; }
+        .files-table { width: 100%; border-collapse: collapse; margin-top: 1rem; }
+        .files-table th, .files-table td { padding: 12px 16px; text-align: right; border-bottom: 1px solid var(--border-color); }
+        .files-table th { color: var(--text-muted); font-size: 0.85rem; }
+        .files-table td { color: #fff; font-weight: 600; }
+
+        .badge-chapter { background: #1e293b; color: var(--accent-yellow); padding: 3px 8px; border-radius: 6px; font-size: 0.8rem; border: 1px solid var(--border-color); }
+
+        .hidden { display: none !important; }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="logo"><i class="fa-solid fa-dna"></i> MATREX <span>| الأحياء 3 ثانوي</span></div>
+        <div class="user-panel hidden" id="userPanel">
+            <div>
+                <span id="navUserName" style="font-weight: bold;">مستخدم</span>
+                <span id="navUserRole" class="badge-role">طالب</span>
+            </div>
+            <button onclick="logout()" class="btn-logout"><i class="fa-solid fa-right-from-bracket"></i> خروج</button>
+        </div>
+    </header>
+
+    <!-- Auth View -->
+    <div id="authSection" class="auth-container">
+        <div class="card">
+            <div class="auth-tabs">
+                <button class="tab-btn active" id="loginTabBtn" onclick="switchTab('login')">تسجيل الدخول</button>
+                <button class="tab-btn" id="regTabBtn" onclick="switchTab('register')">حساب جديد</button>
+            </div>
+
+            <div id="loginForm">
+                <div class="form-group"><label>البريد الإلكتروني</label><input type="email" id="loginEmail" placeholder="mora@gmail.com"></div>
+                <div class="form-group"><label>كلمة السر</label><input type="password" id="loginPass"></div>
+                <button class="btn-submit" onclick="handleLogin()">دخول المنصة</button>
+            </div>
+
+            <div id="registerForm" class="hidden">
+                <div class="form-group"><label>الاسم بالكامل</label><input type="text" id="regName"></div>
+                <div class="form-group"><label>البريد الإلكتروني</label><input type="email" id="regEmail"></div>
+                <div class="form-group"><label>كلمة السر</label><input type="password" id="regPass"></div>
+                <div class="form-group">
+                    <label>نوع الحساب</label>
+                    <select id="regRole" onchange="toggleTeacherKey()">
+                        <option value="student">طالب 3 ثانوي</option>
+                        <option value="teacher">مدرس الأحياء (المالك)</option>
+                    </select>
+                </div>
+                <div class="form-group hidden" id="teacherKeyGroup">
+                    <label>كود المدرس الخاص</label>
+                    <input type="password" id="teacherKey" placeholder="MATREX2026">
+                </div>
+                <button class="btn-submit" onclick="handleRegister()">إنشاء حساب</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Platform View -->
+    <div id="platformSection" class="hidden" style="max-width: 1200px; margin: 2rem auto; width: 90%;">
+        
+        <div class="hero-banner">
+            <div>
+                <h1 class="hero-title" id="welcomeTitle">أهلاً بك في منصة MATREX</h1>
+                <p style="color: var(--text-muted);">منهج الأحياء للثانوية العامة 2026</p>
+            </div>
+            <i class="fa-solid fa-microscope" style="font-size: 3.5rem; color: var(--primary);"></i>
+        </div>
+
+        <!-- Teacher Upload Box with Chapter Selector -->
+        <div id="teacherUploadBox" class="card hidden" style="border-color: var(--primary); margin-bottom: 2rem;">
+            <h3 style="color: var(--primary); margin-bottom: 1rem;"><i class="fa-solid fa-cloud-arrow-up"></i> رفع محاضرة/ملزمة جديدة</h3>
+            <div style="display: grid; grid-template-columns: 1fr 1fr 1fr auto; gap: 1rem; align-items: end;">
+                
+                <div class="form-group" style="margin: 0;">
+                    <label>عنوان الدرس / الملزمة</label>
+                    <input type="text" id="fileTitle" placeholder="مثال: شرح المفصل الهيكلي">
+                </div>
+
+                <!-- قائمة اختيار الكارت / الباب -->
+                <div class="form-group" style="margin: 0;">
+                    <label>اختر الكارت / الباب التابع له</label>
+                    <select id="fileChapter">
+                        <option value="الفصل الأول: الدعامة والحركة">الفصل الأول: الدعامة والحركة</option>
+                        <option value="الفصل الثاني: التنسيق الهرموني">الفصل الثاني: التنسيق الهرموني</option>
+                        <option value="الفصل الثالث: التكاثر">الفصل الثالث: التكاثر</option>
+                        <option value="البيولوجيا الجزيئية (DNA)">البيولوجيا الجزيئية (DNA)</option>
+                    </select>
+                </div>
+
+                <div class="form-group" style="margin: 0;">
+                    <label>ارفاق الملف</label>
+                    <input type="file" id="fileInput">
+                </div>
+
+                <button class="btn-submit" onclick="handleUpload()" style="height: 48px; width: 130px;"><i class="fa-solid fa-plus"></i> نشر</button>
+            </div>
+        </div>
+
+        <!-- Course Chapters Grid -->
+        <h2 style="margin-bottom: 1rem; font-size: 1.3rem;"><i class="fa-solid fa-book-bookmark" style="color: var(--primary);"></i> أبواب المنهج والمحاضرات</h2>
+        
+        <div class="chapters-grid">
+            
+            <div class="chapter-card">
+                <div class="card-banner"><i class="fa-solid fa-bone"></i><span class="card-badge">الباب الأول</span></div>
+                <div class="card-body">
+                    <div class="chapter-title">الفصل الأول: الدعامة والحركة</div>
+                    <button class="btn-enter-chapter" onclick="filterByChapter('الفصل الأول: الدعامة والحركة')">عرض محاضرات هذا الباب</button>
+                </div>
+            </div>
+
+            <div class="chapter-card">
+                <div class="card-banner"><i class="fa-solid fa-vial"></i><span class="card-badge">الباب الأول</span></div>
+                <div class="card-body">
+                    <div class="chapter-title">الفصل الثاني: التنسيق الهرموني</div>
+                    <button class="btn-enter-chapter" onclick="filterByChapter('الفصل الثاني: التنسيق الهرموني')">عرض محاضرات هذا الباب</button>
+                </div>
+            </div>
+
+            <div class="chapter-card">
+                <div class="card-banner"><i class="fa-solid fa-dna"></i><span class="card-badge">الباب الثاني</span></div>
+                <div class="card-body">
+                    <div class="chapter-title">البيولوجيا الجزيئية (DNA)</div>
+                    <button class="btn-enter-chapter" onclick="filterByChapter('البيولوجيا الجزيئية (DNA)')">عرض محاضرات هذا الباب</button>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Files & Lessons Library -->
+        <div class="files-section" id="filesSection">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                <h3 style="font-size: 1.2rem; color: #fff;" id="sectionTitle"><i class="fa-solid fa-folder-open" style="color: var(--primary);"></i> جميع الملفات والمحاضرات المرفوعة</h3>
+                <button onclick="loadFiles()" style="background: transparent; color: var(--primary); border: 1px solid var(--primary); padding: 4px 12px; border-radius: 6px; cursor: pointer; font-weight: bold;">عرض الكل</button>
+            </div>
+
+            <table class="files-table">
+                <thead>
+                    <tr>
+                        <th>اسم المحاضرة / الدرس</th>
+                        <th>الباب / الفصل</th>
+                        <th>تاريخ النشر</th>
+                        <th>الوصول للملف</th>
+                    </tr>
+                </thead>
+                <tbody id="filesTableBody">
+                    <!-- Load dynamically -->
+                </tbody>
+            </table>
+        </div>
+
+    </div>
+
+    <script>
+        let currentUser = null;
+        let allFilesData = [];
+
+        // الفحص التلقائي عند التحميل إذا كان المستخدم مسجلاً من قبل
+        document.addEventListener('DOMContentLoaded', () => {
+            const savedUser = localStorage.getItem('matrex_user');
+            if (savedUser) {
+                try {
+                    currentUser = JSON.parse(savedUser);
+                    initPlatform();
+                    loadFiles();
+                } catch(e) {
+                    localStorage.removeItem('matrex_user');
+                }
+            }
+        });
+
+        function switchTab(type) {
+            document.getElementById('loginForm').classList.toggle('hidden', type !== 'login');
+            document.getElementById('registerForm').classList.toggle('hidden', type !== 'register');
+            document.getElementById('loginTabBtn').classList.toggle('active', type === 'login');
+            document.getElementById('regTabBtn').classList.toggle('active', type !== 'login');
+        }
+
+        function toggleTeacherKey() {
+            const role = document.getElementById('regRole').value;
+            document.getElementById('teacherKeyGroup').classList.toggle('hidden', role !== 'teacher');
+        }
+
+        async function handleRegister() {
+            const name = document.getElementById('regName').value.trim();
+            const email = document.getElementById('regEmail').value.trim();
+            const password = document.getElementById('regPass').value.trim();
+            const role = document.getElementById('regRole').value;
+            const secretKey = document.getElementById('teacherKey').value.trim();
+
+            if (!name || !email || !password) return alert('يرجى استكمال كافة البيانات!');
+
+            const res = await fetch('/api/register', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ name, email, password, role, secretKey })
+            });
+
+            const data = await res.json();
+            if(res.ok) { alert('تم إنشاء الحساب بنجاح!'); switchTab('login'); }
+            else alert(data.error);
+        }
+
+        async function handleLogin() {
+            const email = document.getElementById('loginEmail').value.trim();
+            const password = document.getElementById('loginPass').value.trim();
+
+            const res = await fetch('/api/login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email, password })
+            });
+
+            const data = await res.json();
+            if(res.ok) {
+                currentUser = data.user;
+                // حفظ الجلسة داخل المتصفح
+                localStorage.setItem('matrex_user', JSON.stringify(currentUser));
+                initPlatform();
+                loadFiles();
+            } else alert(data.error);
+        }
+
+        function initPlatform() {
+            document.getElementById('authSection').classList.add('hidden');
+            document.getElementById('platformSection').classList.remove('hidden');
+            document.getElementById('userPanel').classList.remove('hidden');
+
+            document.getElementById('navUserName').textContent = currentUser.name;
+            document.getElementById('navUserRole').textContent = currentUser.role === 'teacher' ? 'المالك / المدرس' : 'طالب';
+            document.getElementById('welcomeTitle').textContent = `أهلاً بك يا ${currentUser.name}`;
+
+            if(currentUser.role === 'teacher') {
+                document.getElementById('teacherUploadBox').classList.remove('hidden');
+            } else {
+                document.getElementById('teacherUploadBox').classList.add('hidden');
+            }
+        }
+
+        function logout() { 
+            // مسح بيانات الحفظ عند تسجيل الخروج اليدوي
+            localStorage.removeItem('matrex_user');
+            location.reload(); 
+        }
+
+        async function handleUpload() {
+            const title = document.getElementById('fileTitle').value.trim();
+            const chapter = document.getElementById('fileChapter').value;
+            const fileInput = document.getElementById('fileInput');
+
+            if (!title || fileInput.files.length === 0) return alert('اختر الملف واكتب عنوان المحاضرة!');
+
+            const formData = new FormData();
+            formData.append('title', title);
+            formData.append('chapter', chapter);
+            formData.append('file', fileInput.files[0]);
+            formData.append('role', currentUser.role);
+
+            const res = await fetch('/api/upload', { method: 'POST', body: formData });
+            const data = await res.json();
+
+            if(res.ok) {
+                alert(`تم نشر الدرس بنجاح داخل كارت (${chapter})!`);
+                document.getElementById('fileTitle').value = '';
+                fileInput.value = '';
+                loadFiles();
+            } else alert(data.error);
+        }
+
+        async function loadFiles() {
+            const res = await fetch('/api/files');
+            allFilesData = await res.json();
+            document.getElementById('sectionTitle').innerHTML = `<i class="fa-solid fa-folder-open" style="color: var(--primary);"></i> جميع الملفات والمحاضرات المرفوعة`;
+            renderFilesTable(allFilesData);
+        }
+
+        function filterByChapter(chapterName) {
+            const filtered = allFilesData.filter(f => f.chapter === chapterName);
+            document.getElementById('sectionTitle').innerHTML = `<i class="fa-solid fa-filter" style="color: var(--primary);"></i> المحاضرات المتاحة لـ: <span style="color:var(--primary);">${chapterName}</span>`;
+            renderFilesTable(filtered);
+            document.getElementById('filesSection').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function renderFilesTable(files) {
+            const tbody = document.getElementById('filesTableBody');
+            tbody.innerHTML = '';
+
+            if(files.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="4" style="text-align: center; color: var(--text-muted);">لا توجد ملفات مرفوعة لهذا الباب حالياً.</td></tr>';
+                return;
+            }
+
+            files.forEach(f => {
+                tbody.innerHTML += `
+                    <tr>
+                        <td><i class="fa-solid fa-file-video" style="color: var(--primary); margin-left: 8px;"></i> ${f.title}</td>
+                        <td><span class="badge-chapter">${f.chapter}</span></td>
+                        <td style="color: var(--text-muted); font-size: 0.9rem;">${f.date}</td>
+                        <td>
+                            <a href="${f.path}" target="_blank" style="color: var(--primary); font-weight: bold; text-decoration: none; padding: 4px 12px; border: 1px solid var(--primary); border-radius: 6px;">
+                                فتح المحاضرة
+                            </a>
+                        </td>
+                    </tr>
+                `;
+            });
+        }
+    </script>
+</body>
+</html>
