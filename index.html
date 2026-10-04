@@ -57,7 +57,6 @@
         }
         .hero-title { font-size: 1.8rem; font-weight: 900; color: #fff; }
 
-        /* Course / Chapter Cards Grid */
         .chapters-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1.5rem; margin-bottom: 3rem; }
         .chapter-card {
             background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 18px;
@@ -77,7 +76,6 @@
         }
         .btn-enter-chapter:hover { background: var(--primary); color: #000; }
 
-        /* Files Section */
         .files-section { background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 18px; padding: 1.5rem; margin-bottom: 2rem; }
         .files-table { width: 100%; border-collapse: collapse; margin-top: 1rem; }
         .files-table th, .files-table td { padding: 12px 16px; text-align: right; border-bottom: 1px solid var(--border-color); }
@@ -147,7 +145,7 @@
             <i class="fa-solid fa-microscope" style="font-size: 3.5rem; color: var(--primary);"></i>
         </div>
 
-        <!-- Teacher Upload Box with Chapter Selector -->
+        <!-- Teacher Upload Box -->
         <div id="teacherUploadBox" class="card hidden" style="border-color: var(--primary); margin-bottom: 2rem;">
             <h3 style="color: var(--primary); margin-bottom: 1rem;"><i class="fa-solid fa-cloud-arrow-up"></i> رفع محاضرة/ملزمة جديدة</h3>
             <div style="display: grid; grid-template-columns: 1fr 1fr 1fr auto; gap: 1rem; align-items: end;">
@@ -157,7 +155,6 @@
                     <input type="text" id="fileTitle" placeholder="مثال: شرح المفصل الهيكلي">
                 </div>
 
-                <!-- قائمة اختيار الكارت / الباب -->
                 <div class="form-group" style="margin: 0;">
                     <label>اختر الكارت / الباب التابع له</label>
                     <select id="fileChapter">
@@ -233,10 +230,12 @@
     </div>
 
     <script>
+        // رابط سيرفر localtunnel الخارجي
+        const API_BASE_URL = 'https://smooth-crabs-buy.loca.lt';
+
         let currentUser = null;
         let allFilesData = [];
 
-        // الفحص التلقائي عند التحميل إذا كان المستخدم مسجلاً من قبل
         document.addEventListener('DOMContentLoaded', () => {
             const savedUser = localStorage.getItem('matrex_user');
             if (savedUser) {
@@ -271,35 +270,42 @@
 
             if (!name || !email || !password) return alert('يرجى استكمال كافة البيانات!');
 
-            const res = await fetch('/api/register', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ name, email, password, role, secretKey })
-            });
+            try {
+                const res = await fetch(`${API_BASE_URL}/api/register`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ name, email, password, role, secretKey })
+                });
 
-            const data = await res.json();
-            if(res.ok) { alert('تم إنشاء الحساب بنجاح!'); switchTab('login'); }
-            else alert(data.error);
+                const data = await res.json();
+                if(res.ok) { alert('تم إنشاء الحساب بنجاح!'); switchTab('login'); }
+                else alert(data.error);
+            } catch (err) {
+                alert('عذراً، متعذر الاتصال بالسيرفر! تأكد من تشغيل localtunnel وسيرفر Node.js');
+            }
         }
 
         async function handleLogin() {
             const email = document.getElementById('loginEmail').value.trim();
             const password = document.getElementById('loginPass').value.trim();
 
-            const res = await fetch('/api/login', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ email, password })
-            });
+            try {
+                const res = await fetch(`${API_BASE_URL}/api/login`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, password })
+                });
 
-            const data = await res.json();
-            if(res.ok) {
-                currentUser = data.user;
-                // حفظ الجلسة داخل المتصفح
-                localStorage.setItem('matrex_user', JSON.stringify(currentUser));
-                initPlatform();
-                loadFiles();
-            } else alert(data.error);
+                const data = await res.json();
+                if(res.ok) {
+                    currentUser = data.user;
+                    localStorage.setItem('matrex_user', JSON.stringify(currentUser));
+                    initPlatform();
+                    loadFiles();
+                } else alert(data.error);
+            } catch (err) {
+                alert('عذراً، متعذر الاتصال بالسيرفر! تأكد من تشغيل localtunnel وسيرفر Node.js');
+            }
         }
 
         function initPlatform() {
@@ -319,7 +325,6 @@
         }
 
         function logout() { 
-            // مسح بيانات الحفظ عند تسجيل الخروج اليدوي
             localStorage.removeItem('matrex_user');
             location.reload(); 
         }
@@ -337,22 +342,30 @@
             formData.append('file', fileInput.files[0]);
             formData.append('role', currentUser.role);
 
-            const res = await fetch('/api/upload', { method: 'POST', body: formData });
-            const data = await res.json();
+            try {
+                const res = await fetch(`${API_BASE_URL}/api/upload`, { method: 'POST', body: formData });
+                const data = await res.json();
 
-            if(res.ok) {
-                alert(`تم نشر الدرس بنجاح داخل كارت (${chapter})!`);
-                document.getElementById('fileTitle').value = '';
-                fileInput.value = '';
-                loadFiles();
-            } else alert(data.error);
+                if(res.ok) {
+                    alert(`تم نشر الدرس بنجاح داخل كارت (${chapter})!`);
+                    document.getElementById('fileTitle').value = '';
+                    fileInput.value = '';
+                    loadFiles();
+                } else alert(data.error);
+            } catch (err) {
+                alert('فشل رفع الملف! تأكد من تشغيل السيرفر.');
+            }
         }
 
         async function loadFiles() {
-            const res = await fetch('/api/files');
-            allFilesData = await res.json();
-            document.getElementById('sectionTitle').innerHTML = `<i class="fa-solid fa-folder-open" style="color: var(--primary);"></i> جميع الملفات والمحاضرات المرفوعة`;
-            renderFilesTable(allFilesData);
+            try {
+                const res = await fetch(`${API_BASE_URL}/api/files`);
+                allFilesData = await res.json();
+                document.getElementById('sectionTitle').innerHTML = `<i class="fa-solid fa-folder-open" style="color: var(--primary);"></i> جميع الملفات والمحاضرات المرفوعة`;
+                renderFilesTable(allFilesData);
+            } catch (err) {
+                console.error('خطأ في جلب الملفات:', err);
+            }
         }
 
         function filterByChapter(chapterName) {
@@ -372,13 +385,14 @@
             }
 
             files.forEach(f => {
+                const fileLink = f.path.startsWith('http') ? f.path : `${API_BASE_URL}${f.path}`;
                 tbody.innerHTML += `
                     <tr>
                         <td><i class="fa-solid fa-file-video" style="color: var(--primary); margin-left: 8px;"></i> ${f.title}</td>
                         <td><span class="badge-chapter">${f.chapter}</span></td>
                         <td style="color: var(--text-muted); font-size: 0.9rem;">${f.date}</td>
                         <td>
-                            <a href="${f.path}" target="_blank" style="color: var(--primary); font-weight: bold; text-decoration: none; padding: 4px 12px; border: 1px solid var(--primary); border-radius: 6px;">
+                            <a href="${fileLink}" target="_blank" style="color: var(--primary); font-weight: bold; text-decoration: none; padding: 4px 12px; border: 1px solid var(--primary); border-radius: 6px;">
                                 فتح المحاضرة
                             </a>
                         </td>

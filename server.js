@@ -1,4 +1,5 @@
 const express = require('express');
+const cors = require('cors'); // تفعيل CORS لتلقي الطلبات الخارجية
 const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
@@ -8,11 +9,12 @@ const bcrypt = require('bcryptjs');
 const app = express();
 const PORT = 3000;
 
+app.use(cors()); // السماح بالاتصال من GitHub Pages
 app.use(express.json());
 app.use(express.static('public'));
 app.use('/uploads', express.static('uploads'));
 
-// 1. الربط بقاعدة بيانات MongoDB Atlas الخاصة بك
+// 1. الربط بقاعدة بيانات MongoDB Atlas
 const MONGO_URI = "mongodb+srv://amrsultan003_db_user:PNuXJLuoBoKepanR@cluster0.cyon1t2.mongodb.net/matrex?retryWrites=true&w=majority";
 
 mongoose.connect(MONGO_URI)
